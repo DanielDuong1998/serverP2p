@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha256.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/block.js"></script>
+    <script src="/js/controller.js"></script>
+    <script>
+        const beforeLoign = _ => {
+            console.log('before login')
+            const ip = document.getElementById("inputNe").value;
+            console.log('ip: ', ip)
+            signup();
+        }
+    </script>
+    <script src="/js/index.js"></script>
+</head>
+
+<body>
+    <h1>hello babe!</h1>
+    <input type="text" id="inputNe" placeholder="input your text">
+    <button id="btn" onclick="beforeLoign()">login ne</button>
+</body>
+
+</html>
