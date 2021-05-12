@@ -12,10 +12,14 @@ app.set('view engine', 'ejs');
 app.set('views', 'views');
 const server = require('http').Server(app);
 var io = require('socket.io')(server);
-app.set('io', io);
 
 
 var listUser = [];
+var unspentServer = [];
+
+app.set('io', io);
+app.set('listUser', listUser);
+app.set('unspentServer', unspentServer);
 
 io.on('connection', socket => {
     console.log('id ', socket.id, ' connect');
@@ -65,12 +69,16 @@ io.on('connection', socket => {
 
     socket.on('getUnspentTransaction', data => {
         if (listUser.length === 1) {
-            socket.emit('serverSendUnspentTransaction', '');
+            console.log('un empty')
+            if (unspentServer.length !== 0) socket.emit('serverSendUnspentTransaction', unspentServer);
+            else socket.emit('serverSendUnspentTransaction', '');
+            unspentServer = [];
             return;
         }
 
         for (let i = 0; i < listUser.length; i++) {
             if (listUser[i].id != socket.id) {
+                console.log('has data un')
                 io.to(listUser[i].id).emit('serverNeedUnspentTransaction', socket.id);
                 return;
             }
@@ -80,6 +88,7 @@ io.on('connection', socket => {
     socket.on('clientSendUnspentTransaction', data => {
         let id = data.id;
         let transaction = data.unspentTransaction;
+        console.log('client sen un')
         io.to(id).emit('serverSendUnspentTransaction', transaction);
     })
 

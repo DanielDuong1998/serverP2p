@@ -68,7 +68,20 @@ router.post('/', (req, res) => {
             txOut
         }
 
-        io.broadcast.emit('newTransaction', transaction);
+
+        var listUser = req.app.get('listUser');
+        if (listUser.length === 0) {
+            var unspentServer = req.app.get('unspentServer');
+            unspentServer.push(transaction);
+        }
+        else {
+            for (let i = 0; i < listUser.length; i++) {
+                console.log('id to emit: ', listUser[i].id)
+                io.to(listUser[i].id).emit('newTransaction', transaction);
+            }
+        }
+
+
 
         //broadcast transaction
     }

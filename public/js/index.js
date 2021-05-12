@@ -1,9 +1,9 @@
 let socket = io("http://localhost:3000");
 let blockChain;
-let unspentStransaction;
+let unspentTransaction;
 window.onload = _ => {
     blockChain = new BlockChain();
-    unspentStransaction = [];
+    unspentTransaction = [];
 
     socket.on('serverSend', msg => {
         console.log('server: ', msg);
@@ -29,22 +29,22 @@ window.onload = _ => {
 
     //start unspentTransaction
     socket.on('serverSendUnspentTransaction', data => {
-        if (data !== "") unspentStransaction = data.unspentStransaction;
-        console.log("usp tran ne: ", unspentStransaction)
+        if (data !== "") unspentTransaction = data;
+        console.log("usp tran ne: ", unspentTransaction)
 
     })
 
     socket.on('serverNeedUnspentTransaction', id => {
         const data = ({
             id,
-            unspentStransaction: unspentStransaction
+            unspentTransaction: unspentTransaction
         })
         socket.emit('clientSendUnspentTransaction', data);
     })
 
     socket.on('newTransaction', transaction => {
-        unspentStransaction.push(transaction);
-        console.log("usp tran: ", unspentStransaction)
+        unspentTransaction.push(transaction);
+        console.log("usp tran new: ", unspentTransaction)
     })
 }
 
@@ -82,18 +82,26 @@ const signup = async (username, password) => {
         dataType: 'json',
         data
     }).done(data => {
-        console.log('data: ', data.data);
-        let txtPublickey = document.getElementById("su_publicKey");
-        let txtPrivateKey = document.getElementById("su_privateKey");
-        document.getElementById("su_desc").style.display = "block";
+        if (data.status === 1) {
+            console.log('data: ', data.data);
+            let txtPublickey = document.getElementById("su_publicKey");
+            let txtPrivateKey = document.getElementById("su_privateKey");
+            document.getElementById("su_desc").style.display = "block";
 
-        txtPublickey.style.display = "block";
-        txtPrivateKey.style.display = "block";
-        console.log('pl: ', data.publicKey)
-        txtPublickey.innerHTML = `Địa chỉ ví: ${data.data.publicKey}`;
-        txtPrivateKey.innerHTML = `Private key: ${data.data.privateKey}`;
+            txtPublickey.style.display = "block";
+            txtPrivateKey.style.display = "block";
+            console.log('pl: ', data.publicKey)
+            txtPublickey.innerHTML = `Địa chỉ ví: ${data.data.publicKey}`;
+            txtPrivateKey.innerHTML = `Private key: ${data.data.privateKey}`;
 
-        localStorage.setItem("publicKey", data.data.publicKey);
-        localStorage.setItem("privateKey", data.data.privateKey);
+            localStorage.setItem("publicKey", data.data.publicKey);
+            localStorage.setItem("privateKey", data.data.privateKey);
+        }
+        else {
+            let ms = document.getElementById("su_msg");
+            ms.style.display = "block";
+            ms.innerHTML = "Tên đăng nhập đã tồn tại";
+        }
+
     })
 }
