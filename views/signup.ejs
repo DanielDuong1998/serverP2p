@@ -8,6 +8,7 @@
     <title>Sign Up</title>
     <link rel="stylesheet" href="style/signup.css">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha256.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -15,6 +16,7 @@
     <script src="/js/block.js"></script>
     <script src="js/blockChain.js"></script>
     <script src="/js/controller.js"></script>
+    <script src="js/index.js"></script>
 
     <script>
         const beforeSignUp = _ => {
@@ -35,6 +37,7 @@
                 return;
             }
             txt.style.display = "none";
+            signup(username, password);
 
         }
     </script>

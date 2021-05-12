@@ -14,5 +14,17 @@ const login = (username, password) => {
 }
 
 const signup = async (username, password) => {
+    console.log('signup')
+    const data = ({
+        username, password
+    })
 
+    $.ajax({
+        url: './signup',
+        method: 'post',
+        dataType: 'json',
+        data
+    }).done(data => {
+        console.log('data: ', data);
+    })
 }

@@ -38,7 +38,8 @@ app.get('/', (req, res) => {
 //     
 // });
 
-app.use('/signup', require('./routes/signUp.route'))
+app.use('/signup', require('./routes/signUp.route'));
+app.use('/login', require('./routes/login.route'));
 
 const PORT = 3000;
 server.listen(PORT, _ => {

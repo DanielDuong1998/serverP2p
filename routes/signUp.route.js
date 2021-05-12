@@ -1,13 +1,7 @@
 const express = require('express');
-const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
+const db = require('../db/db')
+const NodeRSA = require('node-rsa');
 
-const adapter = new FileSync('db/user.json');
-const db = low(adapter);
-
-db.defaults({
-    user: []
-}).write();
 
 const router = express.Router();
 
@@ -28,10 +22,23 @@ router.post('/', (req, res) => {
     }
 
     let size = db.get('user').size().value();
+
+    const key = new NodeRSA({ b: 2048 });
+    const publicKey = key.exportKey('public');
+    const privateKey = key.exportKey('private');
+
+    const data = ({
+        index: size + 1,
+        username,
+        password,
+        publicKey,
+        privateKey
+    })
+
     db.get('user').push({ index: size + 1, username, password }).write();
     res.json({
         status: 1,
-        msg: 'done'
+        data
     })
 
 })
