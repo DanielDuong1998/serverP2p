@@ -36,3 +36,7 @@
 #login > button {
     margin-top: 5px;
 }
+
+#lgi_desc {
+    color: red;
+}

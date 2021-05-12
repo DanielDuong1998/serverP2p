@@ -13,6 +13,8 @@ app.set('views', 'views');
 const server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var listUser = [];
+
 io.on('connection', socket => {
     console.log('id ', socket.id, ' connect');
     socket.on('hello', msg => {
@@ -24,6 +26,11 @@ io.on('connection', socket => {
         console.log('id: ', socket.id, ' disconnect');
     })
 
+    socket.on('login', publicKey => {
+        listUser.push({ id: socket.id, publicKey })
+        console.log('arr: ', listUser);
+    })
+
 })
 
 const handleEvent = _ => {
@@ -33,10 +40,6 @@ const handleEvent = _ => {
 app.get('/', (req, res) => {
     res.render('index');
 })
-
-// app.get('/signup', (req, res) => {
-//     
-// });
 
 app.use('/signup', require('./routes/signUp.route'));
 app.use('/login', require('./routes/login.route'));

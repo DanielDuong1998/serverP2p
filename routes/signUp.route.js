@@ -35,7 +35,7 @@ router.post('/', (req, res) => {
         privateKey
     })
 
-    db.get('user').push({ index: size + 1, username, password }).write();
+    db.get('user').push({ index: size + 1, username, password, publicKey }).write();
     res.json({
         status: 1,
         data

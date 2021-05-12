@@ -22,7 +22,14 @@
         }
 
         const beforeLogin = _ => {
-            login();
+            let username = document.getElementById("username").value;
+            let password = document.getElementById("password").value;
+            if (username === "" || password === "") {
+                document.getElementById("lgi_desc").style.display = "block";
+                return;
+            }
+            document.getElementById("lgi_desc").style.display = "none";
+            login(username, password);
         }
     </script>
     <script src="/js/index.js"></script>
@@ -37,6 +44,7 @@
                 <input type="text" id="username" placeholder="Tên đăng nhập">
                 <input type="password" id="password" placeholder="Mật khẩu">
                 <button id="loginBtn" onclick="beforeLogin()">ĐĂNG NHẬP</button>
+                <div id="lgi_desc" style="display: none">Tên tài khoản hoặc mật khẩu không được để trống</div>
             </div>
         </div>
     </div>

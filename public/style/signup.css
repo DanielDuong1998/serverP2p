@@ -17,3 +17,11 @@ button {
 #su_msg {
     color: red;
 }
+
+#su_desc {
+    color: red;
+}
+
+.key {
+    margin-top: 10px;
+}
