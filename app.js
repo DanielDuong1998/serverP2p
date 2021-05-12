@@ -1,12 +1,15 @@
 const express = require('express');
 const cors = require('cors');
+const bodyparser = require('body-parser');
+
 
 const app = express();
 app.use(cors());
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 app.set('views', 'views');
-
 const server = require('http').Server(app);
 var io = require('socket.io')(server);
 
@@ -21,13 +24,6 @@ io.on('connection', socket => {
         console.log('id: ', socket.id, ' disconnect');
     })
 
-    socket.on("sendData", data => {
-        const id = data.id;
-        const msg = data.msg;
-        const dt = JSON.stringify({ id: data.id, data: data.msg })
-        console.log('dt: ', dt);
-        io.to(`${id}`).emit('p2p', ({ id, msg }));
-    })
 })
 
 const handleEvent = _ => {
@@ -37,6 +33,12 @@ const handleEvent = _ => {
 app.get('/', (req, res) => {
     res.render('index');
 })
+
+// app.get('/signup', (req, res) => {
+//     
+// });
+
+app.use('/signup', require('./routes/signUp.route'))
 
 const PORT = 3000;
 server.listen(PORT, _ => {

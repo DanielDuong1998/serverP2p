@@ -1,0 +1,19 @@
+#su_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#su_container > input,
+button {
+    width: 300px;
+    margin-bottom: 5px;
+}
+
+#su_container > button {
+    margin-top: 5px;
+}
+
+#su_msg {
+    color: red;
+}

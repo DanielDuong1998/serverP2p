@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="style/signup.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha256.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/block.js"></script>
+    <script src="js/blockChain.js"></script>
+    <script src="/js/controller.js"></script>
+
+    <script>
+        const beforeSignUp = _ => {
+            let username = document.getElementById("su_username").value;
+            let password = document.getElementById("su_password").value;
+            let passwordAgain = document.getElementById("su_passwordAgain").value;
+            let txt = document.getElementById("su_msg");
+
+            if (password !== passwordAgain) {
+                txt.style.display = "block";
+                txt.innerHTML = "Mật khẩu không trùng khớp";
+                return;
+            }
+
+            if (username === "") {
+                txt.innerHTML = "Tên đăng nhập không được để trống";
+                txt.style.display = "block";
+                return;
+            }
+            txt.style.display = "none";
+
+        }
+    </script>
+</head>
+
+<body>
+    <div id="su_container">
+        <h1>TẠO VÍ MY COIN</h1>
+        <input id="su_username" type="text" placeholder="Tên đăng nhập">
+        <input id="su_password" type="password" placeholder="Mật khẩu">
+        <input id="su_passwordAgain" type="password" placeholder="Nhập lại mật khẩu">
+        <button id="btn_signup" onclick="beforeSignUp()">ĐĂNG KÝ</button>
+        <div id="su_msg" style="display: none">Mật khẩu không trùng khớp</div>
+
+    </div>
+</body>
+
+</html>

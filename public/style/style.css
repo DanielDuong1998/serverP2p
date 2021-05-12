@@ -1,0 +1,38 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-style: solid;
+}
+
+#interface {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+}
+
+#createWallet {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 150px;
+    border-style: solid;
+}
+
+#login {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    border-style: solid;
+    padding: 10px;
+}
+
+#login > input {
+    margin-bottom: 10px;
+}
+
+#login > button {
+    margin-top: 5px;
+}

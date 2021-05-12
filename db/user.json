@@ -1,0 +1,24 @@
+{
+  "user": [
+    {
+      "id": 1,
+      "username": "dvkhangnt",
+      "password": "123455"
+    },
+    {
+      "id": 2,
+      "username": "nhlong",
+      "password": "123455"
+    },
+    {
+      "index": 3,
+      "username": "dvkhangnt1",
+      "password": "123456"
+    },
+    {
+      "index": 4,
+      "username": "dvkhangnt2",
+      "password": "123456"
+    }
+  ]
+}
