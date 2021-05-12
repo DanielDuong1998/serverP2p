@@ -1,6 +1,8 @@
 const express = require('express');
 const db = require('../db/db')
 const NodeRSA = require('node-rsa');
+const rsa = require('../db/rsa');
+const { v4: uuidv4 } = require('uuid');
 
 
 const router = express.Router();
@@ -36,6 +38,40 @@ router.post('/', (req, res) => {
     })
 
     db.get('user').push({ index: size + 1, username, password, publicKey }).write();
+    if (size + 1 <= 10) {
+        //tao transaction + 1000 coin
+        const svPublicKey = rsa.publicKey();
+        const svPrivateKey = rsa.privateKey();
+        const priRsa = new NodeRSA(svPrivateKey);
+        const pubRsa = new NodeRSA(svPublicKey);
+        // console.log('svPub: ', svPublicKey);
+        // console.log('svPri: ', svPrivateKey);
+        var io = req.app.get('io');
+
+        const txOut = {
+            address: publicKey,
+            amount: 1000
+        }
+        const sign = priRsa.sign(JSON.stringify(txOut), 'base64', 'utf8');
+        // console.log('sign: ', sign);
+        // const verify = pubRsa.verify(JSON.stringify(txOut), sign, 'utf8', 'base64');
+        // console.log('verify: ', verify);
+        const txIn = {
+            signature: sign
+        }
+
+
+        const transaction = {
+            id: uuidv4(),
+            address: svPublicKey,
+            txIn,
+            txOut
+        }
+
+        io.broadcast.emit('newTransaction', transaction);
+
+        //broadcast transaction
+    }
     res.json({
         status: 1,
         data
