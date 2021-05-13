@@ -74,6 +74,7 @@
             document.getElementById('hp_container').style.display = "none";
             document.getElementById('rp_container').style.display = "block";
             let total = getTotalCoin(localStorage.getItem('publicKey'));
+            document.getElementById('rp_username').innerHTML = `Tên tài khoản: ${localStorage.getItem('username')}`;
             document.getElementById('rp_pubKey').innerHTML = `Địa Chỉ: ${localStorage.getItem('publicKey')}`;
             document.getElementById('rp_totalCoin').innerHTML = `Tổng số xu: ${total}`;
             updateUiRp(localStorage.getItem('publicKey'));
@@ -135,7 +136,10 @@
             sendCoin(a, coin, privateKey);
         }
 
-
+        const home = _ => {
+            document.getElementById("su_container").style.display = "none";
+            document.getElementById("container").style.display = "flex";
+        }
 
     </script>
 </head>
@@ -145,7 +149,7 @@
     <div id="container">
         <h1>MYCOIN</h1>
         <div id="interface">
-            <div id="createWallet" onClick="createWallet()">Tao Vi</div>
+            <div id="createWallet" onClick="createWallet()">Tạo Ví</div>
             <div id="login">
                 <input type="text" id="username" placeholder="Tên đăng nhập">
                 <input type="password" id="password" placeholder="Mật khẩu">
@@ -162,6 +166,7 @@
         <input id="su_password" type="password" placeholder="Mật khẩu">
         <input id="su_passwordAgain" type="password" placeholder="Nhập lại mật khẩu">
         <button id="btn_signup" onclick="beforeSignUp()">ĐĂNG KÝ</button>
+        <button id="btn_home" onclick="home()">Trang Chủ </button>
         <div id="su_msg" style="display: none">Mật khẩu không trùng khớp</div>
         <div id="su_desc" class="key" style="display: none">Hãy lưu trữ private key của bạn cẩn thận</div>
         <p id="su_publicKey" class="key" style="display: none"></p>
@@ -175,12 +180,14 @@
         <div class="hp_block">Lịch sử giao dịch</div>
         <div class="hp_block" id="mine" onclick="beforeMine()">Đào Coin</div>
         <div id="hp_msg" style="display:none">Hiện tại không có giao dịch nào cần xác nhận</div>
+        <div id="hp_numberUnspent" style="display:none"></div>
         <ul id="hp_blockChain"></ul>
     </div>
 
     <!-- thống kê tài khoản -->
     <div id="rp_container" style="display: none">
         <h1>THỐNG KÊ TÀI KHOẢN</h1>
+        <div id="rp_username">Tên tài khoản</div><br>
         <div id="rp_pubKey">Địa Chỉ: </div><br>
         <div id="rp_totalCoin">Tổng số xu: 100</div><br>
         <ul id="rp_transaction">

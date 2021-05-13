@@ -18,6 +18,7 @@ window.onload = _ => {
     socket.on('serverSendBlockChain', data => {
         if (data !== "") blockChain.blockChain = data;
         console.log('block chain: ', blockChain.blockChain);
+        updateBlockChain();
     })
 
     socket.on('serverNeedBlockChain', id => {
@@ -34,6 +35,12 @@ window.onload = _ => {
         if (data !== "") unspentTransaction = data;
         console.log("usp tran ne: ", unspentTransaction)
 
+        if (unspentTransaction.length > 0) {
+            let e = document.getElementById("hp_numberUnspent");
+            e.style.display = "block";
+            e.innerHTML = `Đang có ${unspentTransaction.length} giao dịch cần xác thực, Đào ngay`;
+        }
+
     })
 
     socket.on('serverNeedUnspentTransaction', id => {
@@ -46,6 +53,9 @@ window.onload = _ => {
 
     socket.on('newTransaction', transaction => {
         unspentTransaction.push(transaction);
+        let e = document.getElementById("hp_numberUnspent");
+        e.style.display = "block";
+        e.innerHTML = `Đang có ${unspentTransaction.length} giao dịch cần xác thực, Đào ngay`;
 
         console.log("usp tran new: ", unspentTransaction)
     })
@@ -89,6 +99,12 @@ window.onload = _ => {
                 unspentTransaction.splice(i, 1);
                 i--;
                 if (i < 0) i = 0;
+                if (unspentTransaction.length == 0) document.getElementById("hp_numberUnspent").style.display = "none";
+                else {
+                    let e = document.getElementById("hp_numberUnspent");
+                    e.style.display = "block";
+                    e.innerHTML = `Đang có ${unspentTransaction.length} giao dịch cần xác thực, Đào ngay`;
+                }
             }
         }
     })
@@ -148,6 +164,7 @@ const login = (username, password) => {
         updateBlockChain();
 
         localStorage.setItem('publicKey', data.data.publicKey);
+        localStorage.setItem('username', data.data.username);
 
     })
 }
