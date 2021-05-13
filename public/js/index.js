@@ -46,6 +46,7 @@ window.onload = _ => {
 
     socket.on('newTransaction', transaction => {
         unspentTransaction.push(transaction);
+
         console.log("usp tran new: ", unspentTransaction)
     })
 
@@ -75,6 +76,9 @@ window.onload = _ => {
 
     socket.on('addNewBlock', block => {
         blockChain.blockChain.push(block);
+        document.getElementById("hp_msg").style.display = "block";
+        document.getElementById("hp_msg").innerHTML = "Block mới đã được thêm vào";
+        updateBlockChain();
         console.log('block chain: ', blockChain.blockChain)
     })
 
@@ -94,6 +98,29 @@ window.onload = _ => {
         console.log('pk server: ', localStorage.getItem('publicKeyServer'))
         console.log('pk server 2: ', publicKey)
     })
+}
+
+const updateBlockChain = _ => {
+    let ulE = document.getElementById("hp_blockChain");
+    let blChain = blockChain.blockChain;
+    let str = "";
+    for (let i = 0; i < blChain.length; i++) {
+        let s = i == 0 ? `data: ${blChain[i].data}` : ` data: {
+            người đào: ${blChain[i].data.minor}<br>,
+            phần thưởng: ${blChain[i].data.prize}<br>,
+            id Giao dịch: ${blChain[i].data.id}<br>
+        }`;
+        str += `<li>
+        Block: ${blChain[i].index}<br>
+        previousHash: ${blChain[i].previousHash}<br>
+        thời gian: ${moment(blChain[i].timestamp).format('YYYY-MM-DD HH:mm:ss')}<br>
+        hash: ${blChain[i].hash}<br>
+        độ khó: ${blChain[i].difficulty}<br>
+        nonce: ${blChain[i].nonce}<br>
+        ${s}
+        </li><br>`
+    }
+    ulE.innerHTML = str;
 }
 
 const login = (username, password) => {
@@ -118,6 +145,7 @@ const login = (username, password) => {
         socket.emit('getUnspentTransaction', '');
         document.getElementById("container").style.display = "none";
         document.getElementById("hp_container").style.display = "flex";
+        updateBlockChain();
 
         localStorage.setItem('publicKey', data.data.publicKey);
 
@@ -166,17 +194,17 @@ const getTotalCoin = publicKey => {
     for (let i = 0; i < blChain.length; i++) {
         if (blChain[i].data.txOut !== undefined && blChain[i].data.txOut.address !== undefined) {
             if (blChain[i].data.address == publicKey) {
-                total -= blChain[i].data.txOut.amount;
+                total -= +blChain[i].data.txOut.amount;
             }
 
 
             if (publicKey == blChain[i].data.txOut.address) {
-                total += blChain[i].data.txOut.amount;
+                total += +blChain[i].data.txOut.amount;
             }
 
 
             if (blChain[i].data.minor == publicKey) {
-                total += blChain[i].data.prize;
+                total += +blChain[i].data.prize;
             }
 
         }
@@ -204,10 +232,12 @@ const hashMatchesDifficulty = (hash, difficulty) => {
 const mineCoin = _ => {
     if (unspentTransaction.length === 0) {
         document.getElementById("hp_msg").style.display = "block";
+        document.getElementById("hp_msg").innerHTML = "Không có giao dịch nào để đào!!!";
 
         return;
     }
-    document.getElementById("hp_msg").style.display = "none";
+    document.getElementById("hp_msg").style.display = "block";
+    document.getElementById("hp_msg").innerHTML = "Đang đào...";
 
 
     let length = blockChain.blockChain.length;
@@ -215,7 +245,7 @@ const mineCoin = _ => {
     let timestamp = moment().valueOf();
     let index = blockChain.blockChain.length + 1;
     let previousHash = blockChain.blockChain[length - 1].hash;
-    let difficulty = 10;
+    let difficulty = 20;
 
     data.minor = localStorage.getItem("publicKey");
     data.prize = 5;
@@ -246,7 +276,6 @@ const mineCoin = _ => {
             }
             break;
         }
-        console.log('hash')
         nonce++;
     }
 
@@ -292,7 +321,7 @@ const updateUiRp = publicKey => {
             }
 
 
-            strA = blChain[i].data.minor.spl;
+            strA = blChain[i].data.minor;
             strB = publicKey;
             if (strA == strB) {
                 str += `<li>
@@ -347,7 +376,8 @@ const sendCoin = (address, coin, privateKey) => {
     }
 
     socket.emit('createTransacsion', transaction);
-
+    document.getElementById("sc_msg").style.display = "block";
+    document.getElementById("sc_msg").innerHTML = "Tạo giao dịch thành công, vui lòng đợi xác thực!";
 
 }
 
