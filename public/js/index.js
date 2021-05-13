@@ -1,3 +1,4 @@
+
 let socket = io("http://localhost:3000");
 let blockChain;
 let unspentTransaction;
@@ -16,6 +17,7 @@ window.onload = _ => {
     // start blockchain
     socket.on('serverSendBlockChain', data => {
         if (data !== "") blockChain.blockChain = data;
+        console.log('block chain: ', blockChain.blockChain);
     })
 
     socket.on('serverNeedBlockChain', id => {
@@ -46,6 +48,52 @@ window.onload = _ => {
         unspentTransaction.push(transaction);
         console.log("usp tran new: ", unspentTransaction)
     })
+
+    socket.on('verifyBlockServer', block => {
+        console.log('block receive from server: ', block);
+        let index = block.index;
+        let previousHash = block.previousHash;
+        let timestamp = block.timestamp;
+        let nonce = block.nonce;
+        let difficulty = block.difficulty;
+        let data = block.data;
+        console.log('index: ', index);
+        console.log('previousHash: ', previousHash);
+        console.log('timestamp: ', timestamp);
+        console.log('nonce: ', nonce);
+        console.log('difficulty: ', difficulty);
+        console.log('data: ', data);
+        let hash = BestController.caculateHash(index, previousHash, timestamp, data, nonce, difficulty);
+        let status = hashMatchesDifficulty(hash, difficulty);
+        console.log('status: ', status);
+        let hashLast = blockChain.blockChain[blockChain.blockChain.length - 1].hash;
+        console.log('lasHas: ', hashLast);
+        console.log('previousHash: ', previousHash);
+        status = status && (hashLast === previousHash);
+        socket.emit('resultVerifyBlock', ({ status, block }))
+    })
+
+    socket.on('addNewBlock', block => {
+        blockChain.blockChain.push(block);
+        console.log('block chain: ', blockChain.blockChain)
+    })
+
+    socket.on('mineSuccess', idUnspentSuccess => {
+        console.log('idUnspent success: ', idUnspentSuccess);
+        for (let i = 0; i < unspentTransaction.length; i++) {
+            if (idUnspentSuccess == unspentTransaction[i].id) {
+                unspentTransaction.splice(i, 1);
+                i--;
+                if (i < 0) i = 0;
+            }
+        }
+    })
+
+    socket.on('publicKeyServer', publicKey => {
+        localStorage.setItem('publicKeyServer', publicKey);
+        console.log('pk server: ', localStorage.getItem('publicKeyServer'))
+        console.log('pk server 2: ', publicKey)
+    })
 }
 
 const login = (username, password) => {
@@ -68,6 +116,11 @@ const login = (username, password) => {
         socket.emit('login', data.data.publicKey);
         socket.emit('getBlockChain', '');
         socket.emit('getUnspentTransaction', '');
+        document.getElementById("container").style.display = "none";
+        document.getElementById("hp_container").style.display = "flex";
+
+        localStorage.setItem('publicKey', data.data.publicKey);
+
     })
 }
 
@@ -105,3 +158,152 @@ const signup = async (username, password) => {
 
     })
 }
+
+const getTotalCoin = publicKey => {
+    let blChain = blockChain.blockChain;
+
+    let total = 0;
+    for (let i = 0; i < blChain.length; i++) {
+        if (blChain[i].data.txOut !== undefined && blChain[i].data.txOut.address !== undefined) {
+            if (blChain[i].data.address == publicKey) {
+                total -= blChain[i].data.txOut.amount;
+            }
+
+
+            if (publicKey == blChain[i].data.txOut.address) {
+                total += blChain[i].data.txOut.amount;
+            }
+
+
+            if (blChain[i].data.minor == publicKey) {
+                total += blChain[i].data.prize;
+            }
+
+        }
+    }
+
+
+    return total;
+
+}
+
+const checkHex = (n) => { return /^[0-9A-Fa-f]{1,64}$/.test(n) }
+
+const hex2bin = (n) => {
+    if (!checkHex(n)) return 0;
+    return parseInt(n, 16).toString(2)
+}
+
+const hashMatchesDifficulty = (hash, difficulty) => {
+    const h2b = hex2bin(hash);
+    const requiredPrefix = '1'.repeat(difficulty);
+    let rs = h2b.startsWith(requiredPrefix);
+    return rs;
+}
+
+const mineCoin = _ => {
+    if (unspentTransaction.length === 0) {
+        document.getElementById("hp_msg").style.display = "block";
+
+        return;
+    }
+    document.getElementById("hp_msg").style.display = "none";
+
+
+    let length = blockChain.blockChain.length;
+    let data = unspentTransaction[0];
+    let timestamp = moment().valueOf();
+    let index = blockChain.blockChain.length + 1;
+    let previousHash = blockChain.blockChain[length - 1].hash;
+    let difficulty = 10;
+
+    data.minor = localStorage.getItem("publicKey");
+    data.prize = 5;
+
+    let addressSender = data.address;
+    let addressServer = localStorage.getItem('publicKeyServer');
+    console.log('addressServer: ', addressServer);
+
+    if (addressSender != addressServer) {
+        //check total coint with amount
+        let coin = getTotalCoin(addressSender);
+        let amount = data.txOut.amount;
+        if (coin < amount) {
+            //goi event huy verify giao dich
+            return;
+        }
+    }
+
+    let nonce = 0;
+    while (true) {
+        // for (let i = 0; i < 10000; i++) {
+        const hash = BestController.caculateHash(index, previousHash, timestamp, data, nonce, difficulty);
+        if (hashMatchesDifficulty(hash, difficulty)) {
+
+            let d = {
+                hash: hex2bin(hash),
+                nonce: nonce
+            }
+            break;
+        }
+        console.log('hash')
+        nonce++;
+    }
+
+    //tao block, gui server verify
+    //server verify block
+    //neu ok > 50% size, server xac nhan ok
+    // lay ptu ra khoi unspent
+    // add new Block
+    const hashAf = BestController.caculateHash(index, previousHash, timestamp, data, nonce, difficulty);
+
+    const block = new Block(index, previousHash, timestamp, data, difficulty, nonce, hashAf)
+    socket.emit('verifyBlock', block);
+    console.log('h2b ne: ', hex2bin(hashAf))
+
+}
+
+const updateUiRp = publicKey => {
+    let blChain = blockChain.blockChain;
+
+    let str = '';
+    for (let i = 0; i < blChain.length; i++) {
+        if (blChain[i].data.txOut !== undefined && blChain[i].data.txOut.address !== undefined) {
+            if (blChain[i].data.address == publicKey) {
+                str += `<li>
+                Gửi cho địa chỉ: ${blChain[i].data.txOut.address} <br>
+                số lượng xu: ${blChain[i].data.txOut.amount} <br>
+                vào lúc: ${moment(blChain[i].timestamp).format('YYYY-MM-DD HH:mm:ss')}
+                </li>`;
+            }
+
+
+            if (publicKey == blChain[i].data.txOut.address) {
+                str += `<li>
+                Nhận từ địa chỉ: ${blChain[i].data.address} <br>
+                số lượng xu: ${blChain[i].data.txOut.amount} <br>
+                vào lúc: ${moment(blChain[i].timestamp).format('YYYY-MM-DD HH:mm:ss')}
+                </li>`;
+            }
+
+
+            if (blChain[i].data.minor == publicKey) {
+                str += `<li>
+                Đào được từ giao dịch có id: ${blChain[i].data.id} <br>
+                số lượng xu: ${blChain[i].data.prize} <br>
+                vào lúc: ${moment(blChain[i].timestamp).format('YYYY-MM-DD HH:mm:ss')}
+                </li>`;
+            }
+
+        }
+    }
+    document.getElementById("rp_transaction").innerHTML = str;
+}
+
+const sendCoin = (address, coin) => {
+    console.log('sendcoin')
+    const pubKeyStr = localStorage.getItem("publicKey");
+    let pubkey = new NodeRSA(pubKeyStr);
+    console.log('pubkey: ', pubkey);
+}
+

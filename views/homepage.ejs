@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomePage</title>
+    <link rel="stylesheet" href="/style/homepage.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha256.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/block.js"></script>
+    <script src="js/blockChain.js"></script>
+    <script src="/js/controller.js"></script>
+    <script src="/js/index.js"></script>
+
+    <script>
+        const beforeMine = _ => {
+            console.log('before mine');
+            mineCoin();
+        }
+    </script>
+</head>
+
+<body>
+    <div id="hp_container">
+        <div>Thống kê tài khoản</div>
+        <div>Chuyển Coin</div>
+        <div>Lịch sử giao dịch</div>
+        <div id="mine" onclick="beforeMine()">Đào Coin</div>
+    </div>
+</body>
+
+</html>

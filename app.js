@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyparser = require('body-parser');
+const publicKeyServer = require('./db/rsa').publicKey();
 
 
 const app = express();
@@ -16,6 +17,7 @@ var io = require('socket.io')(server);
 
 var listUser = [];
 var unspentServer = [];
+var verifyBlockResult = 0;
 
 app.set('io', io);
 app.set('listUser', listUser);
@@ -23,10 +25,11 @@ app.set('unspentServer', unspentServer);
 
 io.on('connection', socket => {
     console.log('id ', socket.id, ' connect');
-    socket.on('hello', msg => {
-        console.log('msg: ', msg);
-        io.emit('serverSend', `hello id: ${socket.id}`);
-    })
+
+
+    console.log('pubk: ', publicKeyServer)
+    io.to(socket.id).emit('publicKeyServer', publicKeyServer);
+
 
     socket.on('disconnect', _ => {
         console.log('id: ', socket.id, ' disconnect');
@@ -92,6 +95,24 @@ io.on('connection', socket => {
         io.to(id).emit('serverSendUnspentTransaction', transaction);
     })
 
+    socket.on('verifyBlock', block => {
+        console.log('block: ', block);
+        for (let i = 0; i < listUser.length; i++) {
+            io.to(listUser[i].id).emit('verifyBlockServer', block);
+        }
+    })
+
+    socket.on('resultVerifyBlock', data => {
+        if (data.status == true) verifyBlockResult++;
+        if (verifyBlockResult > listUser.length / 2) {
+            verifyBlockResult = 0;
+            for (let i = 0; i < listUser.length; i++) {
+                io.to(listUser[i].id).emit('addNewBlock', data.block);
+                io.to(listUser[i].id).emit('mineSuccess', data.block.data.id);
+            }
+        }
+    })
+
 })
 
 const handleEvent = _ => {
@@ -104,6 +125,7 @@ app.get('/', (req, res) => {
 
 app.use('/signup', require('./routes/signUp.route'));
 app.use('/login', require('./routes/login.route'));
+app.use('/homepage', require('./routes/homepage.route'));
 
 const PORT = 3000;
 server.listen(PORT, _ => {
