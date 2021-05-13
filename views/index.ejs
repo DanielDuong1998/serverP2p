@@ -127,12 +127,23 @@
 
             let str = address.split("-----");
             let o = str[2].split(" ").join('\n');
-            console.log('str ne: ', o)
             let a = `-----BEGIN PUBLIC KEY-----${o}-----END PUBLIC KEY-----`;
-            console.log('OFFFICIAL: ', a);
-
-
             document.getElementById("sc_msg").style.display = 'none';
+
+            //check private key
+            let pubKeyStr = localStorage.getItem("publicKey");
+            let sign = new JSEncrypt();
+            sign.setPrivateKey(privateKey);
+            let signature = sign.sign('data', CryptoJS.SHA256, "sha256");
+            let verify = new JSEncrypt();
+            verify.setPublicKey(pubKeyStr);
+            let verified = verify.verify('data', signature, CryptoJS.SHA256);
+            if (!verified) {
+                document.getElementById("sc_msg").style.display = 'block';
+                document.getElementById("sc_msg").innerHTML = 'private key sai rồi';
+                return;
+            }
+
             sendCoin(a, coin, privateKey);
         }
 

@@ -262,7 +262,7 @@ const mineCoin = _ => {
     let timestamp = moment().valueOf();
     let index = blockChain.blockChain.length + 1;
     let previousHash = blockChain.blockChain[length - 1].hash;
-    let difficulty = 20;
+    let difficulty = 18;
 
     data.minor = localStorage.getItem("publicKey");
     data.prize = 5;
