@@ -269,7 +269,11 @@ const updateUiRp = publicKey => {
     let str = '';
     for (let i = 0; i < blChain.length; i++) {
         if (blChain[i].data.txOut !== undefined && blChain[i].data.txOut.address !== undefined) {
-            if (blChain[i].data.address == publicKey) {
+            let strA, strB;
+
+            strA = blChain[i].data.address;
+            strB = publicKey;
+            if (strA == strB) {
                 str += `<li>
                 Gửi cho địa chỉ: ${blChain[i].data.txOut.address} <br>
                 số lượng xu: ${blChain[i].data.txOut.amount} <br>
@@ -277,8 +281,9 @@ const updateUiRp = publicKey => {
                 </li>`;
             }
 
-
-            if (publicKey == blChain[i].data.txOut.address) {
+            strA = publicKey;
+            strB = blChain[i].data.txOut.address;
+            if (strA == strB) {
                 str += `<li>
                 Nhận từ địa chỉ: ${blChain[i].data.address} <br>
                 số lượng xu: ${blChain[i].data.txOut.amount} <br>
@@ -287,7 +292,9 @@ const updateUiRp = publicKey => {
             }
 
 
-            if (blChain[i].data.minor == publicKey) {
+            strA = blChain[i].data.minor.spl;
+            strB = publicKey;
+            if (strA == strB) {
                 str += `<li>
                 Đào được từ giao dịch có id: ${blChain[i].data.id} <br>
                 số lượng xu: ${blChain[i].data.prize} <br>
@@ -300,10 +307,47 @@ const updateUiRp = publicKey => {
     document.getElementById("rp_transaction").innerHTML = str;
 }
 
-const sendCoin = (address, coin) => {
-    console.log('sendcoin')
+function uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
+const sendCoin = (address, coin, privateKey) => {
+    // console.log('sendcoin')
     const pubKeyStr = localStorage.getItem("publicKey");
-    let pubkey = new NodeRSA(pubKeyStr);
-    console.log('pubkey: ', pubkey);
+    // let sign = new JSEncrypt();
+    // sign.setPrivateKey(privateKey);
+    // let signature = sign.sign('data', CryptoJS.SHA256, "sha256");
+    // console.log('signature: ', signature);
+
+    // let verify = new JSEncrypt();
+    // verify.setPublicKey(pubKeyStr);
+    // let verified = verify.verify('data', signature, CryptoJS.SHA256);
+    // console.log('verified: ', verified)
+
+    const txOut = {
+        address: address,
+        amount: coin
+    }
+
+    let sign = new JSEncrypt();
+    sign.setPrivateKey(privateKey);
+    let signature = sign.sign(JSON.stringify(txOut), CryptoJS.SHA256, "sha256");
+    const txIn = {
+        signature
+    }
+
+    const transaction = {
+        id: uuid(),
+        address: pubKeyStr,
+        txIn,
+        txOut
+    }
+
+    socket.emit('createTransacsion', transaction);
+
+
 }
 

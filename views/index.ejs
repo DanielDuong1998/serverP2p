@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="/style/homepage.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/node-rsa@1.1.1/src/NodeRSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="/js/rsaFile.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/core.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/sha256.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
@@ -93,6 +93,7 @@
         const beforeBtnSendCoin = _ => {
             let coin = document.getElementById('sc_coin').value;
             let address = document.getElementById("sc_address").value;
+            let privateKey = document.getElementById("sc_privateKey").value;
             if (address === "") {
                 let msg = document.getElementById("sc_msg");
                 msg.style.display = "block";
@@ -115,8 +116,22 @@
                 return;
             }
 
+            if (privateKey === "") {
+                let msg = document.getElementById("sc_msg");
+                msg.style.display = "block";
+                msg.innerHTML = `private key không được để trống`;
+                return;
+            }
+
+            let str = address.split("-----");
+            let o = str[2].split(" ").join('\n');
+            console.log('str ne: ', o)
+            let a = `-----BEGIN PUBLIC KEY-----${o}-----END PUBLIC KEY-----`;
+            console.log('OFFFICIAL: ', a);
+
+
             document.getElementById("sc_msg").style.display = 'none';
-            sendCoin(address, coin);
+            sendCoin(a, coin, privateKey);
         }
 
     </script>
@@ -146,8 +161,8 @@
         <button id="btn_signup" onclick="beforeSignUp()">ĐĂNG KÝ</button>
         <div id="su_msg" style="display: none">Mật khẩu không trùng khớp</div>
         <div id="su_desc" class="key" style="display: none">Hãy lưu trữ private key của bạn cẩn thận</div>
-        <div id="su_publicKey" class="key" style="display: none"></div>
-        <div id="su_privateKey" class="key" style="display: none"></div>
+        <p id="su_publicKey" class="key" style="display: none"></p>
+        <p id="su_privateKey" class="key" style="display: none"></p>
     </div>
 
     <!-- homepage -->
@@ -162,8 +177,8 @@
     <!-- thống kê tài khoản -->
     <div id="rp_container" style="display: none">
         <h1>THỐNG KÊ TÀI KHOẢN</h1>
-        <div id="rp_pubKey">Địa Chỉ: </div>
-        <div id="rp_totalCoin">Tổng số xu: 100</div>
+        <div id="rp_pubKey">Địa Chỉ: </div><br>
+        <div id="rp_totalCoin">Tổng số xu: 100</div><br>
         <ul id="rp_transaction">
 
         </ul>
@@ -173,8 +188,9 @@
     <!-- Chuyển Xu -->
     <div id="sc_container" style="display: none">
         <h1>CHUYỂN XU</h1>
-        <input id="sc_address" class="scClass" type="text" placeholder="Địa chỉ người nhận">
+        <textarea id="sc_address" class="scClass" type="text" placeholder="Địa chỉ người nhận"></textarea>
         <input id="sc_coin" class="scClass" type="number" placeholder="số xu sẽ gửi">
+        <input id="sc_privateKey" class="scClass" type="text" placeholder="privateKey">
         <button class="scClass" onclick="beforeBtnSendCoin()">Gửi</button>
         <div id="sc_msg" style="display:none"></div>
         <button onclick="beforeBtnHomepage()">Trang chủ</button>
